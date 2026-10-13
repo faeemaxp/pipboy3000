@@ -132,7 +132,14 @@ fun PipBoyRadioScreen(
 
                             PipBoyTab.LOGS -> {
                                 VaultLogsSection(
-                                    isOverdrive = uiState.isOverdrive
+                                    isOverdrive = uiState.isOverdrive,
+                                    isRepoLoading = uiState.isRepoLoading,
+                                    repoStatusMessage = uiState.repoStatusMessage,
+                                    totalStationCount = uiState.totalStationCount,
+                                    onLoadFromRawJsonUrl = { viewModel.loadFromRawJsonUrl(it) },
+                                    onLoadFromRadioBrowser = { type, query -> viewModel.loadFromRadioBrowser(type, query) },
+                                    onLoadBundledStations = { viewModel.loadBundledStations() },
+                                    onClearStations = { viewModel.clearAllStations() }
                                 )
                             }
                         }

@@ -30,7 +30,10 @@ data class RadioUiState(
     val volume: Float = 0.7f,
     val isOverdrive: Boolean = false,
     val isInterference: Boolean = false,
-    val activeTip: String = "> VAULT-TEC CONNECTED. STAND BY FOR EMERGENCY BROADCASTS. <"
+    val activeTip: String = "> VAULT-TEC CONNECTED. STAND BY FOR EMERGENCY BROADCASTS. <",
+    val isRepoLoading: Boolean = false,
+    val repoStatusMessage: String? = null,
+    val totalStationCount: Int = 0
 ) {
     val displayStatus: String
         get() = temporaryStatus ?: statusSignal

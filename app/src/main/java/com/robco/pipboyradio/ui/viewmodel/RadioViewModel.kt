@@ -66,15 +66,106 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadStations() {
         viewModelScope.launch {
             allStations = repository.getStations()
-            if (allStations.isNotEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        currentStation = allStations[0],
-                        currentStationIndex = 0
-                    )
-                }
+            _uiState.update {
+                it.copy(
+                    totalStationCount = allStations.size,
+                    currentStation = allStations.firstOrNull(),
+                    currentStationIndex = 0
+                )
             }
         }
+    }
+
+    fun loadFromRawJsonUrl(url: String) {
+        if (url.isBlank()) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRepoLoading = true, repoStatusMessage = "SYNCING REPO FROM GITHUB...") }
+            val result = repository.loadFromRawJsonUrl(url.trim())
+            result.onSuccess { stations ->
+                allStations = stations
+                _uiState.update {
+                    it.copy(
+                        isRepoLoading = false,
+                        totalStationCount = stations.size,
+                        currentStation = stations.firstOrNull(),
+                        currentStationIndex = 0,
+                        repoStatusMessage = "SUCCESS: LOADED ${stations.size} STATIONS FROM REPO"
+                    )
+                }
+                showTemporaryStatus("REPO SYNCED: ${stations.size} FREQUENCIES ADDED", 4000)
+            }.onFailure { err ->
+                _uiState.update {
+                    it.copy(
+                        isRepoLoading = false,
+                        repoStatusMessage = "ERROR: ${err.message ?: "FAILED TO FETCH REPO"}"
+                    )
+                }
+                showTemporaryStatus("REPO ERROR: FAILED TO PARSE JSON", 4000)
+            }
+        }
+    }
+
+    fun loadFromRadioBrowser(filterType: String, filterValue: String, limit: Int = 30) {
+        if (filterValue.isBlank()) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRepoLoading = true, repoStatusMessage = "QUERYING RADIO-BROWSER API ($filterType: $filterValue)...") }
+            val result = repository.loadFromRadioBrowser(filterType, filterValue, limit)
+            result.onSuccess { stations ->
+                allStations = stations
+                _uiState.update {
+                    it.copy(
+                        isRepoLoading = false,
+                        totalStationCount = stations.size,
+                        currentStation = stations.firstOrNull(),
+                        currentStationIndex = 0,
+                        repoStatusMessage = "SUCCESS: LOADED ${stations.size} STATIONS FROM RADIO-BROWSER"
+                    )
+                }
+                showTemporaryStatus("RADIO-BROWSER: ${stations.size} STATIONS LOADED", 4000)
+            }.onFailure { err ->
+                _uiState.update {
+                    it.copy(
+                        isRepoLoading = false,
+                        repoStatusMessage = "ERROR: ${err.message ?: "RADIO-BROWSER REQUEST FAILED"}"
+                    )
+                }
+                showTemporaryStatus("RADIO-BROWSER API ERROR", 4000)
+            }
+        }
+    }
+
+    fun loadBundledStations() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRepoLoading = true, repoStatusMessage = "LOADING PRE-CONFIGURED STATIONS...") }
+            val stations = repository.loadBundledAssetStations()
+            allStations = stations
+            _uiState.update {
+                it.copy(
+                    isRepoLoading = false,
+                    totalStationCount = stations.size,
+                    currentStation = stations.firstOrNull(),
+                    currentStationIndex = 0,
+                    repoStatusMessage = "LOADED ${stations.size} DEFAULT VAULT STATIONS"
+                )
+            }
+            showTemporaryStatus("VAULT ARCHIVE: ${stations.size} STATIONS ACTIVE", 3500)
+        }
+    }
+
+    fun clearAllStations() {
+        allStations = repository.clearStations()
+        mediaController?.stop()
+        _uiState.update {
+            it.copy(
+                totalStationCount = 0,
+                currentStation = null,
+                currentStationIndex = 0,
+                isPlaying = false,
+                statusSignal = "STANDBY",
+                repoStatusMessage = "ALL STATIONS CLEARED (DEFAULT NO STATIONS)"
+            )
+        }
+        showTemporaryStatus("STATION CACHE PURGED", 3000)
     }
 
     fun setTab(tab: PipBoyTab) {
