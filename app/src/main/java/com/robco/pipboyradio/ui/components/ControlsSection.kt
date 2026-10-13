@@ -60,9 +60,9 @@ fun ControlsSection(
             .fillMaxWidth()
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
             .background(SurfaceCard, RoundedCornerShape(10.dp))
-            .padding(14.dp)
+            .padding(10.dp)
             .testTag("controls_section"),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Section Header
         Row(
@@ -101,7 +101,7 @@ fun ControlsSection(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(46.dp)
                 .testTag("power_btn")
         ) {
             Row(
@@ -143,7 +143,7 @@ fun ControlsSection(
                 ),
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .height(42.dp)
                     .testTag("prev_station_btn")
             ) {
                 Row(
@@ -177,7 +177,7 @@ fun ControlsSection(
                 ),
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .height(42.dp)
                     .testTag("next_station_btn")
             ) {
                 Row(

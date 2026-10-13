@@ -62,7 +62,7 @@ fun TerminalHeader(
         modifier = modifier
             .fillMaxWidth()
             .testTag("terminal_header"),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // Main Branding & Tactical Mode Toggle Row
         Row(

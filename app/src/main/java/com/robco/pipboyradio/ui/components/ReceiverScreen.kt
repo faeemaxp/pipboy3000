@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -32,10 +29,8 @@ fun ReceiverScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(vertical = 6.dp)
             .testTag("receiver_screen"),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Top Terminal Header with Clock and Mode Switch
         TerminalHeader(
@@ -43,11 +38,13 @@ fun ReceiverScreen(
             onToggleOverdrive = onToggleOverdrive
         )
 
-        // Hero Audio Spectrum & Oscilloscope Display (Zero Overlaps)
+        // Hero Audio Spectrum & Oscilloscope Display — fills remaining space
         VisualizerCanvas(
             isPlaying = isPlaying,
             isOverdrive = isOverdrive,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         )
 
         // Station Broadcast Telemetry with direct browse shortcut

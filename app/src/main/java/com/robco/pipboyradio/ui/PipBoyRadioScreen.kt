@@ -82,11 +82,11 @@ fun PipBoyRadioScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
-                .padding(horizontal = 12.dp, vertical = 6.dp)
+                .padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 // Main Tab Content
                 Box(modifier = Modifier.weight(1f)) {

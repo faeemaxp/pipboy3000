@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,9 +93,9 @@ fun VisualizerCanvas(
             .fillMaxWidth()
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
             .background(SurfaceCard, RoundedCornerShape(10.dp))
-            .padding(12.dp)
+            .padding(10.dp)
             .testTag("visualizer_box"),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Header with Title and Interactive Style Switcher
         Row(
@@ -162,7 +161,7 @@ fun VisualizerCanvas(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(165.dp)
+                .weight(1f)
                 .background(Color(0xFF040705), RoundedCornerShape(6.dp))
                 .border(1.dp, borderColor.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
                 .padding(horizontal = 8.dp, vertical = 6.dp)

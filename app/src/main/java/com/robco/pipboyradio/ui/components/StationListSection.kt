@@ -64,7 +64,7 @@ fun StationListSection(
         modifier = modifier
             .fillMaxSize()
             .testTag("station_list_section"),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Search bar
         OutlinedTextField(
@@ -186,7 +186,7 @@ fun StationListSection(
                 .fillMaxWidth()
                 .weight(1f)
                 .testTag("stations_lazy_column"),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             if (stations.isEmpty()) {
                 item {
@@ -241,7 +241,7 @@ fun StationListSection(
                                 RoundedCornerShape(6.dp)
                             )
                             .clickable { onStationSelect(station) }
-                            .padding(horizontal = 12.dp, vertical = 10.dp)
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
                             .testTag("station_item_$index"),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -290,7 +290,7 @@ fun StationListSection(
                         IconButton(
                             onClick = { onToggleFavorite(station) },
                             modifier = Modifier
-                                .size(44.dp)
+                                .size(36.dp)
                                 .testTag("favorite_btn_$index")
                         ) {
                             Icon(

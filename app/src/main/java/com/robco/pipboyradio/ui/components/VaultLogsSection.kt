@@ -3,7 +3,6 @@ package com.robco.pipboyradio.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +23,6 @@ import com.robco.pipboyradio.ui.theme.AccentRed
 import com.robco.pipboyradio.ui.theme.PhosphorPrimary
 import com.robco.pipboyradio.ui.theme.PhosphorSecondary
 import com.robco.pipboyradio.ui.theme.PipBoyTypography
-import com.robco.pipboyradio.ui.theme.ScreenBackground
 import com.robco.pipboyradio.ui.theme.SurfaceBorder
 import com.robco.pipboyradio.ui.theme.SurfaceCard
 
@@ -98,30 +96,24 @@ private fun LogCard(
     borderColor: androidx.compose.ui.graphics.Color,
     content: @Composable () -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, borderColor, RoundedCornerShape(8.dp))
             .background(SurfaceCard, RoundedCornerShape(8.dp))
-            .padding(12.dp)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
             text = "[ $title ]",
             style = PipBoyTypography.labelSmall.copy(
                 fontSize = 11.sp,
                 color = PhosphorPrimary
-            ),
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .background(ScreenBackground)
-                .padding(horizontal = 4.dp)
-                .align(Alignment.TopStart)
+            )
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             content()
