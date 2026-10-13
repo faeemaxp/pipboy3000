@@ -1,0 +1,8 @@
+{
+  "name": "pipboy-radio-3000",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "true"
+  }
+}

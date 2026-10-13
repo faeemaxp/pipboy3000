@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PIP-BOY RADIO 3000 - ANDROID REWRITE</title>
+  <style>
+    :root {
+      --phosphor-primary: #3cff8f;
+      --phosphor-secondary: #1fa85b;
+      --phosphor-dim: #14532d;
+      --accent-amber: #ffb000;
+      --accent-red: #ff4c4c;
+      --bg-screen: #0a0e0b;
+      --bg-card: #121814;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg-screen);
+      color: var(--phosphor-primary);
+      font-family: 'Courier New', Courier, monospace;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .terminal-container {
+      max-width: 800px;
+      margin: 0 auto;
+      border: 1px solid var(--phosphor-secondary);
+      border-radius: 8px;
+      background: var(--bg-card);
+      padding: 24px;
+      box-shadow: 0 0 20px rgba(60, 255, 143, 0.15);
+    }
+    .header {
+      border-bottom: 1px solid var(--phosphor-secondary);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .badge {
+      border: 1px solid var(--accent-amber);
+      color: var(--accent-amber);
+      padding: 2px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+    }
+    .section-title {
+      color: var(--accent-amber);
+      margin: 16px 0 8px 0;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .card {
+      border: 1px solid var(--phosphor-dim);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    li::before {
+      content: "> ";
+      color: var(--accent-amber);
+    }
+    .footer {
+      border-top: 1px solid var(--phosphor-dim);
+      padding-top: 12px;
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--phosphor-secondary);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-container">
+    <div class="header">
+      <div class="title">PIP-BOY RADIO 3000 [ANDROID EDITION]</div>
+      <div class="badge">REWRITE COMPLETE</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">SYSTEM SPECIFICATIONS</div>
+      <ul>
+        <li>Framework: Kotlin 2.0 + Jetpack Compose (Material 3)</li>
+        <li>Audio Engine: AndroidX Media3 / ExoPlayer + MediaSessionService</li>
+        <li>Visualizer: Dynamic Phosphor Canvas Spectrum + Oscilloscope Fallback</li>
+        <li>Stations Catalog: 275+ Bundled Stations (AIR, Vividh Bharati, FM Rainbow, SomaFM)</li>
+        <li>Min SDK: Android 8.0 (API 26) | Target SDK: Android 15 (API 35)</li>
+        <li>Package Namespace: com.robco.pipboyradio</li>
+        <li>Application ID: com.aistudio.pipboyradio.kxwzfq</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="section-title">PHONE-SPECIFIC UI REDESIGN & ZERO-OVERLAP FIXES</div>
+      <ul>
+        <li>Home Page Spacing: Eliminated all overlapping floating bracket tags with dedicated card header rows</li>
+        <li>Terminal Header: Replaced wrapping raw dashed text with smooth phosphor divider and accessible Overdrive toggle</li>
+        <li>Hero Audio Spectrum: Segregated title bar and 160dp CRT canvas to guarantee zero grid/text collisions</li>
+        <li>Dynamic Visualizer Modes: Switchable between VFD Segmented Equalizer, CRT Beam Oscilloscope, Dual Analog VU Meters, and Sonar Radar</li>
+        <li>Broadcast Telemetry: Structured card with tuned station title, telemetry grid and direct Tuner shortcut</li>
+        <li>Playback Console: 52dp primary power button, dual 48dp stepper buttons, and dedicated volume slider console</li>
+        <li>Full-Height Tuner: Unrestricted vertical scrolling across 275+ stations, instant search & favorites</li>
+        <li>PipBoyBottomNav & MiniPlayerBar: 3-tab phone navigation with docked mini-player and system safe area insets</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      ROBCO INDUSTRIES TERMLINK PROTOCOL // READY FOR EXPORT & CI/CD APK GENERATION
+    </div>
+  </div>
+</body>
+</html>
