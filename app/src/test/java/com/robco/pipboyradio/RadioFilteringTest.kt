@@ -8,8 +8,8 @@ import org.junit.Test
 class RadioFilteringTest {
 
     private val sampleStations = listOf(
-        Station(id = "1", name = "SomaFM: Groove Salad", url = "https://example.com/1", category = "Wasteland Ambient"),
-        Station(id = "2", name = "SomaFM: Secret Agent", url = "https://example.com/2", category = "Vault Jazz"),
+        Station(id = "1", name = "Groove Salad", url = "https://example.com/1", category = "Wasteland Ambient"),
+        Station(id = "2", name = "Secret Agent", url = "https://example.com/2", category = "Vault Jazz"),
         Station(id = "3", name = "Nightwave Plaza", url = "https://example.com/3", category = "Pre-War Wave"),
         Station(id = "4", name = "Vividh Bharati", url = "https://example.com/4", category = "Vividh Bharati"),
         Station(id = "5", name = "FM Gold Delhi", url = "https://example.com/5", category = "FM"),
@@ -30,8 +30,10 @@ class RadioFilteringTest {
                 "VIVIDH BHARATI" -> station.name.contains("Vividh", ignoreCase = true) ||
                         station.name.contains("VBS", ignoreCase = true) ||
                         station.category.equals("Vividh Bharati", ignoreCase = true)
-                "FM" -> station.name.contains("FM", ignoreCase = true)
-                "AKASHVANI" -> station.name.contains("Akashvani", ignoreCase = true)
+                "FM" -> station.name.contains("FM", ignoreCase = true) ||
+                        station.category.contains("FM", ignoreCase = true)
+                "AKASHVANI" -> station.name.contains("Akashvani", ignoreCase = true) ||
+                        station.category.contains("Akashvani", ignoreCase = true)
                 else -> true
             }
         }
@@ -58,7 +60,7 @@ class RadioFilteringTest {
     fun testSearchQueryFiltering() {
         val searchJazz = filter(sampleStations, "Secret", "ALL")
         assertEquals(1, searchJazz.size)
-        assertEquals("SomaFM: Secret Agent", searchJazz[0].name)
+        assertEquals("Secret Agent", searchJazz[0].name)
 
         val caseInsensitive = filter(sampleStations, "delhi", "ALL")
         assertEquals(1, caseInsensitive.size)

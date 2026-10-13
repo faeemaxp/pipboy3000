@@ -111,8 +111,10 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                 "VIVIDH BHARATI" -> station.name.contains("Vividh", ignoreCase = true) ||
                         station.name.contains("VBS", ignoreCase = true) ||
                         station.category.equals("Vividh Bharati", ignoreCase = true)
-                "FM" -> station.name.contains("FM", ignoreCase = true)
-                "AKASHVANI" -> station.name.contains("Akashvani", ignoreCase = true)
+                "FM" -> station.name.contains("FM", ignoreCase = true) ||
+                        station.category.contains("FM", ignoreCase = true)
+                "AKASHVANI" -> station.name.contains("Akashvani", ignoreCase = true) ||
+                        station.category.contains("Akashvani", ignoreCase = true)
                 else -> true
             }
         }.map { station ->
