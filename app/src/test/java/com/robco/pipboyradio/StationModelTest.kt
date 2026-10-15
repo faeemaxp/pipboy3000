@@ -74,4 +74,17 @@ class StationModelTest {
         assertEquals(com.robco.pipboyradio.data.model.PipBoyTab.TUNER, state.currentTab)
         assertTrue(state.favoriteStationUrls.contains("https://example.com/stream.mp3"))
     }
+
+    @Test
+    fun testRepoAndSearchState() {
+        val testStation = Station(id = "1", name = "Test", url = "http://test")
+        val state = RadioUiState(
+            searchResults = listOf(testStation),
+            isSearching = true,
+            showRepoModal = true
+        )
+        assertEquals(1, state.searchResults.size)
+        assertTrue(state.isSearching)
+        assertTrue(state.showRepoModal)
+    }
 }

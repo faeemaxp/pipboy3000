@@ -1,13 +1,16 @@
 package com.robco.pipboyradio.data.repository
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.robco.pipboyradio.data.model.Station
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 
 @Serializable
 private data class RadioBrowserStation(
@@ -25,19 +28,95 @@ class StationRepository(private val context: Context) {
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
+        encodeDefaults = true
     }
 
-    private var cachedStations: List<Station> = emptyList()
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences("pipboy_radio_prefs", Context.MODE_PRIVATE)
+
+    private val PREF_KEY_STATIONS = "cached_stations_json"
+
+    private var cachedStations: MutableList<Station> = mutableListOf()
 
     suspend fun getStations(): List<Station> = withContext(Dispatchers.IO) {
-        if (cachedStations.isNotEmpty()) return@withContext cachedStations
+        if (cachedStations.isNotEmpty()) {
+            return@withContext cachedStations.toList()
+        }
 
-        // By default, no stations unless user adds a repo or fetches
-        cachedStations = emptyList()
-        cachedStations
+        // Try to load from persistent storage
+        val savedJson = prefs.getString(PREF_KEY_STATIONS, null)
+        if (!savedJson.isNullOrBlank()) {
+            try {
+                val loaded: List<Station> = json.decodeFromString(savedJson)
+                cachedStations = loaded.distinctBy { it.url }.toMutableList()
+                return@withContext cachedStations.toList()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        // Fallback to bundled asset stations
+        val bundled = loadBundledAssetStations(append = false)
+        cachedStations = bundled.distinctBy { it.url }.toMutableList()
+        persistStations(cachedStations)
+        cachedStations.toList()
     }
 
-    suspend fun loadFromRawJsonUrl(rawUrl: String): Result<List<Station>> = withContext(Dispatchers.IO) {
+    fun addStation(station: Station): List<Station> {
+        val existingIndex = cachedStations.indexOfFirst { it.url == station.url }
+        if (existingIndex < 0) {
+            // Add custom station to the beginning of the list for instant visibility
+            cachedStations.add(0, station)
+        } else {
+            cachedStations[existingIndex] = station
+        }
+        persistStations(cachedStations)
+        return cachedStations.toList()
+    }
+
+    fun addStations(newStations: List<Station>): List<Station> {
+        val existingUrls = cachedStations.map { it.url }.toSet()
+        val toAdd = newStations.distinctBy { it.url }.filter { it.url !in existingUrls }
+        cachedStations.addAll(toAdd)
+        persistStations(cachedStations)
+        return cachedStations.toList()
+    }
+
+    fun removeStation(stationUrl: String): List<Station> {
+        cachedStations.removeAll { it.url == stationUrl }
+        persistStations(cachedStations)
+        return cachedStations.toList()
+    }
+
+    fun removeStations(stationUrls: Set<String>): List<Station> {
+        cachedStations.removeAll { it.url in stationUrls }
+        persistStations(cachedStations)
+        return cachedStations.toList()
+    }
+
+    fun clearStations(): List<Station> {
+        cachedStations.clear()
+        persistStations(cachedStations)
+        return emptyList()
+    }
+
+    suspend fun restoreDefaultStations(): List<Station> = withContext(Dispatchers.IO) {
+        val defaults = loadBundledAssetStations(append = false)
+        cachedStations = defaults.toMutableList()
+        persistStations(cachedStations)
+        cachedStations.toList()
+    }
+
+    private fun persistStations(stations: List<Station>) {
+        try {
+            val serialized = json.encodeToString(stations)
+            prefs.edit().putString(PREF_KEY_STATIONS, serialized).apply()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun loadFromRawJsonUrl(rawUrl: String, append: Boolean = false): Result<List<Station>> = withContext(Dispatchers.IO) {
         try {
             val url = URL(rawUrl)
             val connection = (url.openConnection() as HttpURLConnection).apply {
@@ -53,26 +132,38 @@ class StationRepository(private val context: Context) {
             }
 
             val body = connection.inputStream.bufferedReader().use { it.readText() }
-            val stations: List<Station> = json.decodeFromString(body)
-            cachedStations = stations
-            Result.success(stations)
+            val stations: List<Station> = json.decodeFromString<List<Station>>(body).distinctBy { it.url }
+
+            if (append) {
+                addStations(stations)
+            } else {
+                cachedStations = stations.toMutableList()
+                persistStations(cachedStations)
+            }
+            Result.success(cachedStations.toList())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun loadFromRadioBrowser(
-        filterType: String,
-        filterValue: String,
+    suspend fun searchRadioBrowser(
+        query: String,
+        filterType: String = "name",
         limit: Int = 30
     ): Result<List<Station>> = withContext(Dispatchers.IO) {
         try {
-            val sanitizedValue = java.net.URLEncoder.encode(filterValue.trim(), "UTF-8")
+            val trimmed = query.trim()
+            if (trimmed.isBlank()) {
+                return@withContext Result.success(emptyList())
+            }
+
+            val sanitizedValue = URLEncoder.encode(trimmed, "UTF-8")
             val endpoint = when (filterType.lowercase()) {
-                "country" -> "https://de1.api.radio-browser.info/json/stations/bycountry/$sanitizedValue?limit=$limit"
-                "language" -> "https://de1.api.radio-browser.info/json/stations/bylanguage/$sanitizedValue?limit=$limit"
-                "tag" -> "https://de1.api.radio-browser.info/json/stations/bytag/$sanitizedValue?limit=$limit"
-                else -> "https://de1.api.radio-browser.info/json/stations/bytag/$sanitizedValue?limit=$limit"
+                "name", "byname" -> "https://de1.api.radio-browser.info/json/stations/byname/$sanitizedValue?limit=$limit"
+                "country", "bycountry" -> "https://de1.api.radio-browser.info/json/stations/bycountry/$sanitizedValue?limit=$limit"
+                "language", "bylanguage" -> "https://de1.api.radio-browser.info/json/stations/bylanguage/$sanitizedValue?limit=$limit"
+                "tag", "bytag" -> "https://de1.api.radio-browser.info/json/stations/bytag/$sanitizedValue?limit=$limit"
+                else -> "https://de1.api.radio-browser.info/json/stations/byname/$sanitizedValue?limit=$limit"
             }
 
             val url = URL(endpoint)
@@ -85,7 +176,7 @@ class StationRepository(private val context: Context) {
 
             val responseCode = connection.responseCode
             if (responseCode !in 200..299) {
-                return@withContext Result.failure(Exception("HTTP $responseCode from Radio-Browser"))
+                return@withContext Result.failure(Exception("Radio-Browser returned HTTP $responseCode"))
             }
 
             val body = connection.inputStream.bufferedReader().use { it.readText() }
@@ -109,28 +200,27 @@ class StationRepository(private val context: Context) {
                     url = streamUrl,
                     category = cat
                 )
-            }
+            }.distinctBy { it.url }
 
-            cachedStations = stations
             Result.success(stations)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun loadBundledAssetStations(): List<Station> = withContext(Dispatchers.IO) {
+    suspend fun loadBundledAssetStations(append: Boolean = false): List<Station> = withContext(Dispatchers.IO) {
         try {
             val jsonString = context.assets.open("stations.json").bufferedReader().use { it.readText() }
-            val stations: List<Station> = json.decodeFromString(jsonString)
-            cachedStations = stations
-            stations
+            val stations: List<Station> = json.decodeFromString<List<Station>>(jsonString).distinctBy { it.url }
+            if (append) {
+                addStations(stations)
+            } else {
+                cachedStations = stations.toMutableList()
+                persistStations(cachedStations)
+            }
+            cachedStations.toList()
         } catch (e: Exception) {
             emptyList()
         }
-    }
-
-    fun clearStations(): List<Station> {
-        cachedStations = emptyList()
-        return emptyList()
     }
 }

@@ -9,20 +9,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.robco.pipboyradio.data.model.Station
+import com.robco.pipboyradio.data.model.StreamMetadata
 
 @Composable
 fun ReceiverScreen(
     currentStation: Station?,
     isPlaying: Boolean,
     statusSignal: String,
+    streamMetadata: StreamMetadata,
+    nowPlayingText: String,
     volume: Float,
     isOverdrive: Boolean,
-    activeTip: String,
     onTogglePower: () -> Unit,
     onPrevStation: () -> Unit,
     onNextStation: () -> Unit,
     onVolumeChange: (Float) -> Unit,
     onToggleOverdrive: () -> Unit,
+    onOpenMetadata: () -> Unit,
     onBrowseStations: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -30,7 +33,7 @@ fun ReceiverScreen(
         modifier = modifier
             .fillMaxSize()
             .testTag("receiver_screen"),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Top Terminal Header with Clock and Mode Switch
         TerminalHeader(
@@ -38,7 +41,7 @@ fun ReceiverScreen(
             onToggleOverdrive = onToggleOverdrive
         )
 
-        // Hero Audio Spectrum & Oscilloscope Display — fills remaining space
+        // Hero Audio Spectrum & Frequency Visualizer — dynamically fills available space
         VisualizerCanvas(
             isPlaying = isPlaying,
             isOverdrive = isOverdrive,
@@ -47,12 +50,15 @@ fun ReceiverScreen(
                 .weight(1f)
         )
 
-        // Station Broadcast Telemetry with direct browse shortcut
+        // Station Broadcast Telemetry & Live Now Playing Metadata
         StatusPanel(
             statusSignal = statusSignal,
             currentStation = currentStation,
+            streamMetadata = streamMetadata,
+            nowPlayingText = nowPlayingText,
             isPlaying = isPlaying,
             isOverdrive = isOverdrive,
+            onOpenMetadata = onOpenMetadata,
             onBrowseStations = onBrowseStations
         )
 
@@ -65,11 +71,6 @@ fun ReceiverScreen(
             onPrevStation = onPrevStation,
             onNextStation = onNextStation,
             onVolumeChange = onVolumeChange
-        )
-
-        // Vault-Tec Lore & Emergency Transmission Ticker
-        TerminalFooter(
-            tipText = activeTip
         )
     }
 }

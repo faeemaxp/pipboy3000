@@ -3,7 +3,6 @@ package com.robco.pipboyradio.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,150 +63,110 @@ fun ControlsSection(
             .testTag("controls_section"),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Section Header
+        // Main Action Power & Step Row
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "[ PLAYBACK CONSOLE ]",
-                style = PipBoyTypography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    color = if (isOverdrive) AccentRed else PhosphorPrimary
-                )
-            )
-
-            Text(
-                text = if (isPlaying) "VACUUM TUBES: ACTIVE" else "VACUUM TUBES: WARM",
-                style = PipBoyTypography.labelSmall.copy(
-                    fontSize = 10.sp,
-                    color = PhosphorSecondary
-                )
-            )
-        }
-
-        // Primary Large Power Button (52dp height, bold tactile button)
-        Button(
-            onClick = onTogglePower,
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isPlaying) {
-                    if (isOverdrive) AccentRed else Color(0xFFD32F2F)
-                } else {
-                    PhosphorPrimary
-                },
-                contentColor = Color.Black
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(46.dp)
-                .testTag("power_btn")
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.size(22.dp)
-                )
-
-                Text(
-                    text = if (isPlaying) "TERMINATE BROADCAST" else "INITIALIZE BROADCAST",
-                    style = PipBoyTypography.titleMedium.copy(
-                        color = Color.Black,
-                        fontSize = 14.sp,
-                        letterSpacing = 1.sp
-                    )
-                )
-            }
-        }
-
-        // Stepper Navigation Row (◄ PREV / NEXT ►)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            // Previous Station Button
             OutlinedButton(
                 onClick = onPrevStation,
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = PhosphorPrimary
-                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = PhosphorPrimary),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
                     brush = androidx.compose.ui.graphics.SolidColor(SurfaceBorder.copy(alpha = 0.6f))
                 ),
                 modifier = Modifier
-                    .weight(1f)
-                    .height(42.dp)
+                    .weight(0.9f)
+                    .height(46.dp)
                     .testTag("prev_station_btn")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SkipPrevious,
+                    contentDescription = "Previous Station",
+                    tint = if (isOverdrive) AccentRed else PhosphorPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "PREV",
+                    style = PipBoyTypography.labelSmall.copy(fontSize = 11.sp),
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+            }
+
+            // Big Central Play / Pause Button
+            Button(
+                onClick = onTogglePower,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isPlaying) {
+                        if (isOverdrive) AccentRed else Color(0xFFC62828)
+                    } else {
+                        if (isOverdrive) AccentRed else PhosphorPrimary
+                    },
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier
+                    .weight(1.5f)
+                    .height(46.dp)
+                    .testTag("power_btn")
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.SkipPrevious,
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = null,
-                        tint = PhosphorPrimary,
-                        modifier = Modifier.size(18.dp)
+                        tint = Color.Black,
+                        modifier = Modifier.size(22.dp)
                     )
                     Text(
-                        text = "PREV",
-                        style = PipBoyTypography.bodyMedium.copy(
-                            color = PhosphorPrimary,
-                            fontSize = 12.sp
+                        text = if (isPlaying) "PAUSE" else "INITIALIZE",
+                        style = PipBoyTypography.titleMedium.copy(
+                            color = Color.Black,
+                            fontSize = 13.sp,
+                            letterSpacing = 1.sp
                         )
                     )
                 }
             }
 
+            // Next Station Button
             OutlinedButton(
                 onClick = onNextStation,
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = PhosphorPrimary
-                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = PhosphorPrimary),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
                     brush = androidx.compose.ui.graphics.SolidColor(SurfaceBorder.copy(alpha = 0.6f))
                 ),
                 modifier = Modifier
-                    .weight(1f)
-                    .height(42.dp)
+                    .weight(0.9f)
+                    .height(46.dp)
                     .testTag("next_station_btn")
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = "NEXT",
-                        style = PipBoyTypography.bodyMedium.copy(
-                            color = PhosphorPrimary,
-                            fontSize = 12.sp
-                        )
-                    )
-                    Icon(
-                        imageVector = Icons.Default.SkipNext,
-                        contentDescription = null,
-                        tint = PhosphorPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+                Text(
+                    text = "NEXT",
+                    style = PipBoyTypography.labelSmall.copy(fontSize = 11.sp),
+                    modifier = Modifier.padding(end = 2.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.SkipNext,
+                    contentDescription = "Next Station",
+                    tint = if (isOverdrive) AccentRed else PhosphorPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
 
-        // Volume Console Row
+        // Volume Slider Console
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(androidx.compose.ui.graphics.Color(0x33000000), RoundedCornerShape(6.dp))
+                .background(Color(0x33000000), RoundedCornerShape(6.dp))
                 .border(1.dp, SurfaceBorder.copy(alpha = 0.2f), RoundedCornerShape(6.dp))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
+                .padding(horizontal = 10.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -215,15 +174,12 @@ fun ControlsSection(
                 imageVector = Icons.Default.VolumeUp,
                 contentDescription = "Volume",
                 tint = if (isOverdrive) AccentRed else PhosphorPrimary,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(16.dp)
             )
 
             Text(
                 text = "VOL",
-                style = PipBoyTypography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    color = PhosphorSecondary
-                )
+                style = PipBoyTypography.labelSmall.copy(fontSize = 11.sp, color = PhosphorSecondary)
             )
 
             Slider(
@@ -242,11 +198,8 @@ fun ControlsSection(
 
             Text(
                 text = "${(volume * 100).roundToInt()}%",
-                style = PipBoyTypography.labelSmall.copy(
-                    color = AccentAmber,
-                    fontSize = 12.sp
-                ),
-                modifier = Modifier.width(44.dp)
+                style = PipBoyTypography.labelSmall.copy(color = AccentAmber, fontSize = 11.sp),
+                modifier = Modifier.width(38.dp)
             )
         }
     }

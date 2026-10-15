@@ -7,7 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +23,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.robco.pipboyradio.data.model.PipBoyTab
+import com.robco.pipboyradio.ui.components.AddStationDialog
+import com.robco.pipboyradio.ui.components.MetadataDialog
 import com.robco.pipboyradio.ui.components.MiniPlayerBar
 import com.robco.pipboyradio.ui.components.PipBoyBottomNav
 import com.robco.pipboyradio.ui.components.ReceiverScreen
@@ -62,6 +66,26 @@ fun PipBoyRadioScreen(
             shakeOffset.animateTo(0f, tween(50))
         }
     }
+
+    // Modal Add Station Dialog
+    AddStationDialog(
+        isOpen = uiState.showAddStationDialog,
+        initialName = uiState.initialAddStationName,
+        initialUrl = uiState.initialAddStationUrl,
+        isOverdrive = uiState.isOverdrive,
+        onDismiss = { viewModel.closeAddStationDialog() },
+        onAddStation = { viewModel.addStationToTuner(it) }
+    )
+
+    // Modal Live Metadata Dialog
+    MetadataDialog(
+        isOpen = uiState.showMetadataDialog,
+        station = uiState.currentStation,
+        metadata = uiState.streamMetadata,
+        isPlaying = uiState.isPlaying,
+        isOverdrive = uiState.isOverdrive,
+        onDismiss = { viewModel.closeMetadataDialog() }
+    )
 
     Scaffold(
         modifier = modifier
@@ -103,14 +127,16 @@ fun PipBoyRadioScreen(
                                     currentStation = uiState.currentStation,
                                     isPlaying = uiState.isPlaying,
                                     statusSignal = uiState.displayStatus,
+                                    streamMetadata = uiState.streamMetadata,
+                                    nowPlayingText = uiState.nowPlayingDisplay,
                                     volume = uiState.volume,
                                     isOverdrive = uiState.isOverdrive,
-                                    activeTip = uiState.activeTip,
                                     onTogglePower = { viewModel.togglePower() },
                                     onPrevStation = { viewModel.prevStation() },
                                     onNextStation = { viewModel.nextStation() },
                                     onVolumeChange = { viewModel.setVolume(it) },
                                     onToggleOverdrive = { viewModel.toggleOverdrive() },
+                                    onOpenMetadata = { viewModel.openMetadataDialog() },
                                     onBrowseStations = { viewModel.setTab(PipBoyTab.TUNER) }
                                 )
                             }
@@ -126,27 +152,58 @@ fun PipBoyRadioScreen(
                                     onSearchChange = { viewModel.setSearchQuery(it) },
                                     onCategoryChange = { viewModel.setCategory(it) },
                                     onStationSelect = { viewModel.playStation(it) },
-                                    onToggleFavorite = { viewModel.toggleFavorite(it) }
+                                    onToggleFavorite = { viewModel.toggleFavorite(it) },
+                                    onRemoveStation = { viewModel.removeStationFromTuner(it) },
+                                    onRemoveMultipleStations = { viewModel.removeStationsFromTuner(it) },
+                                    onOpenAddStation = { name, url -> viewModel.openAddStationDialog(name, url) },
+                                    onSearchSatellite = { query ->
+                                        viewModel.setTab(PipBoyTab.SETTINGS)
+                                        viewModel.searchOnlineStations(query, "name")
+                                    }
                                 )
                             }
 
-                            PipBoyTab.LOGS -> {
+                            PipBoyTab.SETTINGS -> {
                                 VaultLogsSection(
                                     isOverdrive = uiState.isOverdrive,
                                     isRepoLoading = uiState.isRepoLoading,
                                     repoStatusMessage = uiState.repoStatusMessage,
                                     totalStationCount = uiState.totalStationCount,
-                                    onLoadFromRawJsonUrl = { viewModel.loadFromRawJsonUrl(it) },
-                                    onLoadFromRadioBrowser = { type, query -> viewModel.loadFromRadioBrowser(type, query) },
-                                    onLoadBundledStations = { viewModel.loadBundledStations() },
-                                    onClearStations = { viewModel.clearAllStations() }
+                                    activeStations = filteredStations,
+                                    searchResults = uiState.searchResults,
+                                    isSearching = uiState.isSearching,
+                                    searchError = uiState.searchError,
+                                    showRepoModal = uiState.showRepoModal,
+                                    autoPlayNextOnError = uiState.autoPlayNextOnError,
+                                    dataSaverBuffer = uiState.dataSaverBuffer,
+                                    scanlinesEnabled = uiState.scanlinesEnabled,
+                                    pipBoyColorTheme = uiState.pipBoyColorTheme,
+                                    visualizerStyleName = uiState.visualizerStyleName,
+                                    onToggleOverdrive = { viewModel.toggleOverdrive() },
+                                    onToggleAutoPlayNext = { viewModel.toggleAutoPlayNextOnError() },
+                                    onToggleDataSaver = { viewModel.toggleDataSaver() },
+                                    onToggleScanlines = { viewModel.toggleScanlines() },
+                                    onSelectColorTheme = { viewModel.setColorTheme(it) },
+                                    onSelectVisualizerStyle = { viewModel.setVisualizerStyle(it) },
+                                    onOpenAddStationDialog = { viewModel.openAddStationDialog() },
+                                    onOpenRepoModal = { viewModel.setShowRepoModal(true) },
+                                    onCloseRepoModal = { viewModel.setShowRepoModal(false) },
+                                    onSearchOnline = { query, filterType -> viewModel.searchOnlineStations(query, filterType) },
+                                    onClearSearchResults = { viewModel.clearSearchResults() },
+                                    onAddStation = { viewModel.addStationToTuner(it) },
+                                    onAddAllSearchResults = { viewModel.addAllSearchResultsToTuner() },
+                                    onRemoveStation = { viewModel.removeStationFromTuner(it) },
+                                    onLoadRawJsonUrl = { url, append -> viewModel.loadFromRawJsonUrl(url, append) },
+                                    onLoadBundledStations = { append -> viewModel.loadBundledStations(append) },
+                                    onRestoreDefaults = { viewModel.restoreDefaultStations() },
+                                    onClearAllStations = { viewModel.clearAllStations() }
                                 )
                             }
                         }
                     }
                 }
 
-                // Mini Player docked above bottom nav when browsing TUNER or LOGS
+                // Mini Player docked above bottom nav when browsing TUNER or SETTINGS
                 if (uiState.currentTab != PipBoyTab.RECEIVER) {
                     MiniPlayerBar(
                         station = uiState.currentStation,
@@ -157,6 +214,24 @@ fun PipBoyRadioScreen(
                         onNextStation = { viewModel.nextStation() },
                         onExpand = { viewModel.setTab(PipBoyTab.RECEIVER) }
                     )
+                }
+            }
+
+            // CRT Scanline Overlay
+            if (uiState.scanlinesEnabled) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val lineSpacing = 4.dp.toPx()
+                    var y = 0f
+                    val scanlineColor = Color(0x0C000000)
+                    while (y < size.height) {
+                        drawLine(
+                            color = scanlineColor,
+                            start = Offset(0f, y),
+                            end = Offset(size.width, y),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        y += lineSpacing
+                    }
                 }
             }
         }

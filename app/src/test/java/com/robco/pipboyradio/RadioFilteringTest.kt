@@ -90,4 +90,24 @@ class RadioFilteringTest {
         assertEquals(1f, clampVolume(1.5f), 0.001f)
         assertEquals(0.65f, clampVolume(0.65f), 0.001f)
     }
+
+    @Test
+    fun testStationCollectionAddRemove() {
+        val list = mutableListOf<Station>()
+        val s1 = Station(id = "1", name = "Test1", url = "http://1")
+        val s2 = Station(id = "2", name = "Test2", url = "http://2")
+
+        list.add(s1)
+        assertEquals(1, list.size)
+
+        list.add(s2)
+        assertEquals(2, list.size)
+
+        list.removeIf { it.url == s1.url }
+        assertEquals(1, list.size)
+        assertEquals("Test2", list[0].name)
+
+        list.clear()
+        assertTrue(list.isEmpty())
+    }
 }
